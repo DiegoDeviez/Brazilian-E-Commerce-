@@ -4,6 +4,72 @@ Create Date: 06/16/2024
 Description: Brazilian E-Commerce Data Analysis
 */
 
+-- Remove duplicates in orders table
+DELETE FROM 
+	orders
+WHERE 
+	order_id NOT IN (
+    SELECT 
+		MIN(order_id)
+    FROM 
+		orders
+    GROUP BY
+		order_id
+);
+
+-- Remove duplicates in customers table
+DELETE FROM 
+	customers
+WHERE 
+	customer_id NOT IN (
+    SELECT 
+		MIN(customer_id)
+    FROM 
+		customers
+    GROUP BY 
+		customer_id
+);
+
+-- Identify missing values
+SELECT 
+	* 
+FROM 
+	orders 
+WHERE 
+	order_purchase_timestamp IS NULL;
+	
+SELECT 
+	* 
+FROM 
+	customers 
+WHERE 
+	customer_unique_id IS NULL;
+-- Repeat for other columns and tables
+
+-- Handle missing values (example: filling with a default value or removing rows)
+UPDATE 
+	orders
+SET 
+	order_purchase_timestamp = '1970-01-01 00:00:00'
+WHERE 
+	order_purchase_timestamp IS NULL;
+
+DELETE FROM 
+	customers
+WHERE 
+	customer_unique_id IS NULL;
+
+-- Example: Calculate the delivery time in days
+ALTER TABLE 
+	orders 
+ADD COLUMN
+	delivery_time_days INTEGER;
+
+UPDATE 
+	orders
+SET 
+	delivery_time_days = JULIANDAY(order_delivered_customer_date) - JULIANDAY(order_purchase_timestamp);
+
 	
 --Payment methods
 SELECT
